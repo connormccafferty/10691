@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>child app</title>
+  </head>
+  <body>
+    <h2>child app</h2>
+    <p>Version: <span id="of-version"></span></p>
+  </body>
+  <script>
+    const ofVersion = document.querySelector("#of-version");
+
+    if (typeof fin !== "undefined") {
+      const win = fin.Window.getCurrentSync();
+
+      (async () => {
+        const heartbeatClient = await fin.InterApplicationBus.Channel.connect(
+          "heartbeat",
+          { wait: true }
+        );
+        const boundsEventsClient = await fin.InterApplicationBus.Channel.connect(
+          "boundsEvents",
+          { wait: true }
+        );
+
+        await win.on(
+          "bounds-changing",
+          async ({ top, left, height, width }) => {
+            await boundsEventsClient.dispatch("bounds-event", {
+              top,
+              left,
+              height,
+              width
+            });
+          }
+        );
+
+        setInterval(async () => {
+          await heartbeatClient.dispatch("heartbeat", { message: "heartbeat" });
+        }, 2000);
+      })();
+      fin.System.getVersion()
+        .then(v => (ofVersion.textContent = v))
+        .catch(err => console.log(err));
+    } else {
+      ofVersion.textContent = "You are probably running in a browser.";
+    }
+  </script>
+</html>

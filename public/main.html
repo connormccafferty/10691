@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>main app</title>
+  </head>
+  <body>
+    <h2>main window</h2>
+    <p>Version: <span id="of-version"></span></p>
+    <input id="app-name" type="text" />
+    <button onclick="launchApp()">launch</button>
+  </body>
+  <script>
+    const ofVersion = document.querySelector("#of-version");
+
+    async function createChannel(name) {
+      const channel = await fin.InterApplicationBus.Channel.create(name);
+
+      console.log(`${name} channel created`);
+
+      channel.onConnection(identity =>
+        console.log(`Someone connected to the ${name} channel`, identity)
+      );
+
+      window[`${name}_providerBus`] = channel;
+    }
+
+    async function createHeartbeatChannel() {
+      await createChannel("heartbeat");
+      window.heartbeat_providerBus.register(
+        "heartbeat",
+        (payload, identity) => {
+          console.log(identity.uuid);
+        }
+      );
+    }
+
+    async function createBoundsEventsChannel() {
+      await createChannel("boundsEvents");
+      window.boundsEvents_providerBus.register(
+        "bounds-event",
+        (payload, identity) => {
+          console.log(payload);
+        }
+      );
+    }
+
+    function launchApp() {
+      let newAppName = document.querySelector("#app-name");
+
+      fin.Application.start({
+        uuid: newAppName.value,
+        name: newAppName.value,
+        url: "http://localhost:5555/child.html",
+        autoShow: true
+      }).then(async app => {
+        newAppName.value = "";
+      });
+    }
+
+    if (typeof fin !== "undefined") {
+      const app = fin.Application.getCurrentSync();
+      const win = fin.Window.getCurrentSync();
+      createHeartbeatChannel();
+      createBoundsEventsChannel();
+
+      fin.System.getVersion()
+        .then(v => (ofVersion.textContent = v))
+        .catch(err => console.log(err));
+    } else {
+      ofVersion.textContent = "You are probably running in a browser.";
+    }
+  </script>
+</html>

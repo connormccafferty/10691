@@ -1,0 +1,15 @@
+{
+  "startup_app": {
+    "name": "ticket-10691",
+    "uuid": "ticket-10691",
+    "url": "http://localhost:5555/main.html",
+    "defaultHeight": 600,
+    "defaultWidth": 600,
+    "autoShow": true
+  },
+  "runtime": {
+    "arguments": "--disable-web-security --disable-xss-auditor --autoplay-policy=no-user-gesture-required --ignore-certificate-errors --winhttp-proxy-resolver --disable-renderer-backgrounding --noerrdialogs --async-save-dialog --enable-aggressive-domstorage-flushing --enable-precise-memory-info --disable-init-reload --diagnostics",
+    "version": "14.78.46.23"
+  },
+  "shortcut": {}
+}
